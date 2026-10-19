@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Калькулятор бюджета студии красоты АПОСТОЛ: доходы, расходы, отчёты и резервная копия.">
+<title>АПОСТОЛ — Бюджет студии красоты</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="container">
+
+<header class="topbar">
+  <a class="brand" href="index.html">АПОСТОЛ</a>
+  <nav class="nav" aria-label="Разделы сайта">
+    <a href="index.html">Главная</a>
+    <a href="Калькулятор Апостол.html" aria-current="page">Калькулятор</a>
+  </nav>
+</header>
+
+<header class="page">
+  <h1>АПОСТОЛ</h1>
+  <div class="subtitle">ФИНАНСЫ СТУДИИ КРАСОТЫ</div>
+  <div class="actions center">
+    <button type="button" id="exportBtn">Скачать резервную копию</button>
+    <button type="button" id="importBtn" class="secondary">Загрузить копию</button>
+    <input type="file" id="importFile"
+           accept=".json,application/json"
+           class="hidden"
+           aria-hidden="true"
+           tabindex="-1">
+  </div>
+</header>
+
+<section class="panel" aria-labelledby="mastersHeading">
+  <h2 id="mastersHeading">Настройки мастеров</h2>
+  <div id="mastersSettings"></div>
+  <div class="actions">
+    <button type="button" id="addMaster" class="secondary">Добавить мастера</button>
+    <button type="button" id="saveMasters">Сохранить мастеров</button>
+  </div>
+  <p class="hint">
+    У каждого мастера свой процент.
+    При изменении процента старые доходы
+    не пересчитываются.
+    Мастера с доходами удалить нельзя.
+  </p>
+</section>
+
+<section class="panel" aria-labelledby="filtersHeading">
+  <h2 id="filtersHeading">Фильтры</h2>
+  <div class="grid">
+    <div>
+      <label for="from">Дата с</label>
+      <input id="from" type="date">
+    </div>
+    <div>
+      <label for="to">Дата по</label>
+      <input id="to" type="date">
+    </div>
+    <div>
+      <label for="filterMaster">Мастер</label>
+      <select id="filterMaster"></select>
+    </div>
+    <div>
+      <label for="filterService">Услуга</label>
+      <select id="filterService"></select>
+    </div>
+  </div>
+  <div class="actions">
+    <button type="button" id="resetFilters" class="secondary">
+      Сбросить фильтры
+    </button>
+  </div>
+</section>
+
+<section class="stats" aria-label="Сводные показатели">
+  <div class="stat">
+    <small>Выручка</small>
+    <strong id="revenue">0 ₽</strong>
+  </div>
+  <div class="stat">
+    <small>Зарплата мастеров</small>
+    <strong id="salary">0 ₽</strong>
+  </div>
+  <div class="stat">
+    <small>Доля студии</small>
+    <strong id="studioShare">0 ₽</strong>
+  </div>
+  <div class="stat">
+    <small>Общие расходы</small>
+    <strong id="expensesTotal">0 ₽</strong>
+  </div>
+  <div class="stat">
+    <small id="profitLabel">Прибыль студии</small>
+    <strong id="profit">0 ₽</strong>
+  </div>
+</section>
+
+<p id="filterNote" class="hint" role="status" aria-live="polite"></p>
+
+<section class="panel" aria-labelledby="incomeHeading">
+  <h2 id="incomeHeading">Добавить доход</h2>
+
+  <form id="incomeForm">
+    <div class="grid">
+      <div>
+        <label for="incomeDate">Дата</label>
+        <input id="incomeDate" type="date" required>
+      </div>
+      <div>
+        <label for="incomeMaster">Мастер</label>
+        <select id="incomeMaster" required></select>
+      </div>
+      <div>
+        <label for="incomeService">Услуга</label>
+        <input id="incomeService"
+               list="services"
+               maxlength="100"
+               placeholder="Маникюр"
+               required>
+        <datalist id="services"></datalist>
+      </div>
+      <div>
+        <label for="incomeAmount">Стоимость услуги, ₽</label>
+        <input id="incomeAmount"
+               type="number"
+               min="0.01"
+               step="0.01"
+               required>
+      </div>
+      <div>
+        <label for="incomePayment">Способ оплаты</label>
+        <select id="incomePayment">
+          <option>Наличные</option>
+          <option>Карта / терминал</option>
+          <option>Перевод</option>
+          <option>Другое</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" id="incomeSubmit">
+        Добавить доход
+      </button>
+      <button type="button" id="incomeCancel"
+              class="secondary hidden">
+        Отмена
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="panel" aria-labelledby="expenseHeading">
+  <h2 id="expenseHeading">Добавить общий расход</h2>
+
+  <form id="expenseForm">
+    <div class="grid">
+      <div>
+        <label for="expenseDate">Дата</label>
+        <input id="expenseDate" type="date" required>
+      </div>
+      <div>
+        <label for="expenseCategory">Категория расхода</label>
+        <select id="expenseCategory">
+          <option>Аренда</option>
+          <option>Материалы</option>
+          <option>Реклама</option>
+          <option>Коммунальные услуги</option>
+          <option>Налоги</option>
+          <option>Оборудование</option>
+          <option>Прочее</option>
+        </select>
+      </div>
+      <div>
+        <label for="expenseAmount">Сумма, ₽</label>
+        <input id="expenseAmount"
+               type="number"
+               min="0.01"
+               step="0.01"
+               required>
+      </div>
+      <div>
+        <label for="expenseComment">Комментарий</label>
+        <input id="expenseComment"
+               maxlength="200"
+               placeholder="Необязательно">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" id="expenseSubmit">
+        Добавить расход
+      </button>
+      <button type="button" id="expenseCancel"
+              class="secondary hidden">
+        Отмена
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="panel" aria-labelledby="masterReportHeading">
+  <h2 id="masterReportHeading">Отчёт по мастерам</h2>
+  <div class="table-wrap">
+    <table>
+      <caption>Сводка доходов по мастерам за выбранный период</caption>
+      <thead>
+        <tr>
+          <th scope="col">Мастер</th>
+          <th scope="col">Услуг</th>
+          <th scope="col">Выручка</th>
+          <th scope="col">Мастеру</th>
+          <th scope="col">Студии</th>
+        </tr>
+      </thead>
+      <tbody id="masterReport"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" aria-labelledby="serviceReportHeading">
+  <h2 id="serviceReportHeading">Отчёт по услугам</h2>
+  <div class="table-wrap">
+    <table>
+      <caption>Сводка доходов по услугам за выбранный период</caption>
+      <thead>
+        <tr>
+          <th scope="col">Услуга</th>
+          <th scope="col">Количество</th>
+          <th scope="col">Выручка</th>
+          <th scope="col">Мастерам</th>
+          <th scope="col">Студии</th>
+        </tr>
+      </thead>
+      <tbody id="serviceReport"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" aria-labelledby="incomeJournalHeading">
+  <h2 id="incomeJournalHeading">Журнал доходов</h2>
+  <div class="table-wrap">
+    <table>
+      <caption>Все доходы с учётом фильтров</caption>
+      <thead>
+        <tr>
+          <th scope="col">Дата</th>
+          <th scope="col">Мастер</th>
+          <th scope="col">Услуга</th>
+          <th scope="col">Сумма</th>
+          <th scope="col">Процент</th>
+          <th scope="col">Мастеру</th>
+          <th scope="col">Студии</th>
+          <th scope="col">Оплата</th>
+          <th scope="col">Действия</th>
+        </tr>
+      </thead>
+      <tbody id="incomeRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" aria-labelledby="expenseJournalHeading">
+  <h2 id="expenseJournalHeading">Общие расходы студии</h2>
+  <p class="hint">
+    Расходы фильтруются по датам.
+    Они не распределяются между мастерами и услугами.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <caption>Общие расходы студии за выбранный период</caption>
+      <thead>
+        <tr>
+          <th scope="col">Дата</th>
+          <th scope="col">Категория</th>
+          <th scope="col">Комментарий</th>
+          <th scope="col">Сумма</th>
+          <th scope="col">Действия</th>
+        </tr>
+      </thead>
+      <tbody id="expenseRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" aria-labelledby="exportHeading">
+  <h2 id="exportHeading">Экспорт в Excel</h2>
+  <div class="actions">
+    <button type="button" id="incomeCsv">Скачать доходы CSV</button>
+    <button type="button" id="expenseCsv">Скачать расходы CSV</button>
+  </div>
+</section>
+
+<p class="hint">
+  Данные сохраняются в браузере.
+  Регулярно скачивайте резервную копию JSON,
+  чтобы не потерять финансовую историю.
+</p>
+
+<footer class="site-footer">
+  <p><a href="index.html">На главную</a></p>
+</footer>
+
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
