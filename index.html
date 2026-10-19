@@ -6,16 +6,80 @@
 <meta name="description" content="АПОСТОЛ — учёт выручки, выплат мастерам и прибыли студии красоты. Данные хранятся в браузере.">
 <title>АПОСТОЛ — финансы студии красоты</title>
 <link rel="stylesheet" href="css/styles.css">
+<style>
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.theme-toggle {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-weight: normal;
+}
+
+html[data-theme="light"] {
+  --bg: #f6f1ec;
+  --panel: #fffcfa;
+  --input: #ffffff;
+  --gold: #8d5a3b;
+  --gold-deep: #a56b48;
+  --text: #241c18;
+  --muted: #6d5f59;
+  --border: #e5d7cf;
+  --green: #1f7a45;
+  --red: #b4232c;
+  --shadow: 0 16px 40px rgba(70, 42, 24, .08);
+  color-scheme: light;
+}
+
+html[data-theme="dark"] { color-scheme: dark; }
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(900px 420px at 50% -80px, rgba(166, 107, 72, .18), transparent 60%),
+    var(--bg);
+}
+
+html[data-theme="light"] .hero-card,
+html[data-theme="light"] .step {
+  background: #f4ebe4;
+}
+
+html[data-theme="light"] a.button,
+html[data-theme="light"] .nav a[aria-current="page"],
+html[data-theme="light"] .step span {
+  color: #fffaf7;
+}
+</style>
+<script>
+(function () {
+  var saved = localStorage.getItem("apostol_theme");
+  var theme = saved === "light" || saved === "dark"
+    ? saved
+    : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+</script>
 </head>
 <body>
 <div class="container">
 
 <header class="topbar">
   <a class="brand" href="index.html">АПОСТОЛ</a>
-  <nav class="nav" aria-label="Разделы сайта">
-    <a href="index.html" aria-current="page">Главная</a>
-    <a href="Калькулятор Апостол.html">Калькулятор</a>
-  </nav>
+  <div class="top-actions">
+    <nav class="nav" aria-label="Разделы сайта">
+      <a href="index.html" aria-current="page">Главная</a>
+      <a href="Калькулятор Апостол.html">Калькулятор</a>
+    </nav>
+    <button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">
+      Светлая тема
+    </button>
+  </div>
 </header>
 
 <section class="hero">
@@ -92,5 +156,27 @@
 </footer>
 
 </div>
+<script>
+(function () {
+  var btn = document.getElementById("themeToggle");
+
+  function paint(theme) {
+    var light = theme === "light";
+    document.documentElement.setAttribute("data-theme", theme);
+    btn.setAttribute("aria-pressed", String(light));
+    btn.textContent = light ? "Тёмная тема" : "Светлая тема";
+  }
+
+  paint(document.documentElement.getAttribute("data-theme") || "dark");
+
+  btn.addEventListener("click", function () {
+    var next = document.documentElement.getAttribute("data-theme") === "light"
+      ? "dark"
+      : "light";
+    localStorage.setItem("apostol_theme", next);
+    paint(next);
+  });
+})();
+</script>
 </body>
 </html>
